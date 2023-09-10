@@ -31,6 +31,8 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import static com.lit.notification.App.CHANNEL_1_ID;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
             switch (actionId) {
                 case EditorInfo.IME_ACTION_SEND:
-                    sendNotification(editText.getText().toString());
+                    sendNotification(editText.getText().toString(), false);
             }
             return false;
         }
@@ -74,7 +76,13 @@ public class MainActivity extends AppCompatActivity
         String reminderstr = sharedPref.getString("reminder", "");
         reminders = new ArrayList<String>(Arrays.asList(reminderstr.split(";&%/=;")));
 
-        adapter = new CustomAdapter(reminders);
+        adapter = new CustomAdapter(reminders, new CustomAdapter.MyAdapterListener() {
+            @Override
+            public void iconTextViewOnClick(View v) {
+                TextView tv = (TextView) recyclerView.findContainingItemView(v).findViewById(R.id.textView);
+                sendNotification(tv.getText().toString(), true);
+            }
+        });
         recyclerView.setAdapter(adapter);
         enableSwipeToDeleteAndUndo();
 
@@ -84,12 +92,12 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                sendNotification(editText.getText().toString());
+                sendNotification(editText.getText().toString(), false);
             }
         });
     }
 
-    private void sendNotification(String pText)
+    private void sendNotification(String pText, boolean again)
     {
         text = pText;
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
@@ -101,7 +109,10 @@ public class MainActivity extends AppCompatActivity
                         .bigText(text))
                 .build();
         notificationManager.notify((int)(Math.random()*1000), notification);
-        finish();
+        if(!again)
+            finish();
+        else
+            text = null;
         //System.exit(0);
     }
 

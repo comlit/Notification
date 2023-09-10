@@ -4,6 +4,7 @@ package com.lit.notification;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,6 +14,12 @@ import java.util.ArrayList;
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
 
     private ArrayList<String> localDataSet;
+    public static MyAdapterListener onClickListener;
+
+    public interface MyAdapterListener {
+
+        void iconTextViewOnClick(View v);
+    }
 
     /**
      * Provide a reference to the type of views that you are using
@@ -20,16 +27,28 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView textView;
+        private final ImageButton imageButton;
 
         public ViewHolder(View view) {
             super(view);
             // Define click listener for the ViewHolder's View
 
             textView = (TextView) view.findViewById(R.id.textView);
+            imageButton = (ImageButton) view.findViewById(R.id.addButton);
+
+            imageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onClickListener.iconTextViewOnClick(v);
+                }
+            });
         }
 
         public TextView getTextView() {
             return textView;
+        }
+        public ImageButton getImageButton() {
+            return imageButton;
         }
     }
 
@@ -39,8 +58,9 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
      * @param dataSet String[] containing the data to populate views to be used
      * by RecyclerView
      */
-    public CustomAdapter(ArrayList<String> dataSet) {
+    public CustomAdapter(ArrayList<String> dataSet, MyAdapterListener listener) {
         localDataSet = dataSet;
+        this.onClickListener = listener;
     }
 
     // Create new views (invoked by the layout manager)
